@@ -1,4 +1,5 @@
 <script>
+	import Collapsing from '$lib/browser/explorer/Collapsing.svelte'
 	export let key
 	export let values
 
@@ -21,24 +22,27 @@
 	}
 </style>
 
-<h3>
-	Unique Metadata Values
-	<code>{key}</code>
-</h3>
-
-{#each Object.keys(values) as value}
-	{@const folderFiles = makeFolderFiles(values[value])}
-	<strong>{value}</strong>
-	<ul>
-		{#each Object.keys(folderFiles) as folder}
-			<li>
-				<strong>{folder}</strong>
-				<ul>
-					{#each folderFiles[folder] as file}
-						<li>{file}</li>
-					{/each}
-				</ul>
-			</li>
+<Collapsing>
+	<span slot="title">
+		Unique Metadata Values
+		<code>{key}</code>
+	</span>
+	<div slot="panel">
+		{#each Object.keys(values) as value}
+			{@const folderFiles = makeFolderFiles(values[value])}
+			<strong>{value}</strong>
+			<ul>
+				{#each Object.keys(folderFiles) as folder}
+					<li>
+						<strong>{folder}</strong>
+						<ul>
+							{#each folderFiles[folder] as file}
+								<li>{file}</li>
+							{/each}
+						</ul>
+					</li>
+				{/each}
+			</ul>
 		{/each}
-	</ul>
-{/each}
+	</div>
+</Collapsing>
