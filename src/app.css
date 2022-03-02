@@ -1,0 +1,43 @@
+:root {
+	font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--primary-bg: #bed8ef;
+	--primary-highlight: #1365b9;
+	--primary-light: #4a93dc;
+	--error-bg: #f2bfbf;
+	--error-text: #441c1c;
+	--success-bg: #90d594;
+	--success-text: #0c3d21;
+	--info-bg: #e8ecee;
+	--info-text: #1a4775;
+}
+
+body {
+	min-height: 100vh;
+	margin: 0;
+}
+
+input,
+button {
+	font-size: inherit;
+	font-family: inherit;
+}
+
+button:focus:not(:focus-visible) {
+	outline: none;
+}
+
+.content {
+	padding: 1em 2em;
+}
+
+th, tr, td, table {
+	border: 0;
+	border-spacing: 0;
+}
+table thead {
+	background-color: var(--primary-bg);
+}
+th, tr, td {
+	padding: 0.2em 2em;
+}
