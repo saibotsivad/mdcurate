@@ -10,12 +10,16 @@ const parseFileString = string => {
 	let warnings
 	const blockdown = parseBlockdown(string)
 	if (blockdown.warnings) warnings = blockdown.warnings
-	const [ frontmatter, ...blocks ] = blockdown.blocks || []
+	let [ frontmatter, ...blocks ] = blockdown.blocks || []
 	let metadata
-	try {
-		metadata = yaml.load(frontmatter.content)
-	} catch (error) {
-		errors = [ error ]
+	if (frontmatter.name === 'frontmatter') {
+		try {
+			metadata = yaml.load(frontmatter.content)
+		} catch (error) {
+			errors = [ error ]
+		}
+	} else {
+		blocks = [ frontmatter, ...blocks ]
 	}
 	return { metadata, blocks, errors, warnings }
 }

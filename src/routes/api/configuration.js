@@ -11,11 +11,11 @@ export async function get() {
 export async function post({ request }) {
 	const patches = await request.json()
 	for (const { op, path, value } of patches) {
-		if (op === 'add' && path === '/folders') {
-			addFolder(value)
+		if (op === 'add' && path.startsWith('/folders/')) {
+			const [ , folder ] = toTokens(path)
+			addFolder(folder, value?.extensions)
 		} else if (op === 'remove' && path.startsWith('/folders/')) {
 			const [ , folder ] = toTokens(path)
-			console.log('------------removing folder', folder)
 			removeFolder(folder)
 		} else {
 			return {
@@ -27,7 +27,6 @@ export async function post({ request }) {
 			}
 		}
 	}
-	console.log('Configuration updated.', getConfiguration())
 	return {
 		status: 200,
 		body: getConfiguration(),

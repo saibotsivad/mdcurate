@@ -11,11 +11,11 @@ const patch = operations => fetch('/api/configuration', {
 		console.error('There was an error updating the configuration!', error)
 	})
 
-export const addFolder = folder => patch([
+export const addFolder = (folder, extensions) => patch([
 	{
 		op: 'add',
-		path: '/folders',
-		value: folder,
+		path: toPointer([ 'folders', folder ]),
+		value: { extensions },
 	},
 ])
 

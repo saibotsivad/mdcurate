@@ -19,7 +19,7 @@ export const inspectFolderFileMap = folderFileData => {
 			if (errors?.length) output.errors.push(...errors.map(value => ({ folder, file, value })))
 			if (warnings?.length) output.warnings.push(...warnings.map(value => ({ folder, file, value })))
 
-			const metadataKeys = stringifyKeys(metadata)
+			const metadataKeys = stringifyKeys(metadata || {})
 			for (let key of metadataKeys) {
 				// For arrays that aren't deep, we'll drop the array index off the key name, so it makes more
 				// sense when you're looking around.
