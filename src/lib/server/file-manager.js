@@ -5,7 +5,7 @@ import split from 'just-split'
 import { parse as parseBlockdown } from '@saibotsivad/blockdown'
 import yaml from 'js-yaml'
 
-const parseFileString = string => {
+export const parseFileString = string => {
 	let errors
 	let warnings
 	const blockdown = parseBlockdown(string)
@@ -14,8 +14,9 @@ const parseFileString = string => {
 	let metadata
 	if (frontmatter.name === 'frontmatter') {
 		try {
-			metadata = yaml.load(frontmatter.content)
+			metadata = yaml.load(frontmatter.content, { schema: yaml.JSON_SCHEMA })
 		} catch (error) {
+			console.log('-----------', error, frontmatter.content)
 			errors = [ error ]
 		}
 	} else {

@@ -9,6 +9,7 @@
 
 <script>
 	import MetadataExplorer from '$lib/browser/MetadataExplorer.svelte'
+	import Editor from '$lib/browser/Editor.svelte'
 	export let configuration
 	$: shouldWait = Object
 		.keys(configuration.folders || {})
@@ -21,6 +22,8 @@
 <svelte:head>
 	<title>Curate</title>
 </svelte:head>
+
+<Editor />
 
 {#if shouldWait}
 	<div class="content">

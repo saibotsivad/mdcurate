@@ -4,6 +4,7 @@ import { inspectFolderFileMap } from '$lib/server/inspector.js'
 import { DEFAULT_EXTENSIONS } from '$lib/variables.js'
 
 const configuration = {
+	saveAsBlockdown: false,
 	folders: {
 		/*
 		'/path/to/folder': {
@@ -81,6 +82,10 @@ export const addFolder = (folder, extensions) => {
 	return klona(configuration)
 }
 
+export const markFolderForReload = folder => {
+	if (configuration.folders[folder]) configuration.folders[folder].status = 'loading'
+}
+
 export const removeFolder = folder => {
 	configuration.folders[folder].status = 'removing'
 	return klona(configuration)
@@ -90,4 +95,4 @@ export const getFolderFiles = () => klona(inspectedFolderFiles)
 
 // TODO remove in prod
 // addFolder('/path/to/folder', [ 'md' ])
-addFolder('/Users/saibotsivad/Development/git/KayserCommentary/Markdown/Web', [ 'md' ])
+addFolder('/Users/saibotsivad/Development/thinking/bb-web-md/Web', [ 'md' ])

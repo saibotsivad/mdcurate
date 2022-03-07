@@ -1,5 +1,6 @@
 <script>
 	import Collapsing from '$lib/browser/explorer/Collapsing.svelte'
+	import { selectedFile } from '$lib/browser/editor-store.js'
 	export let folderFiles
 	const remap = list => {
 		const map = {}
@@ -12,6 +13,12 @@
 	$: folderToFilesMap = remap(folderFiles)
 </script>
 
+<style>
+	li {
+		padding-bottom: 0.4em;
+	}
+</style>
+
 <Collapsing>
 	<span slot="title">
 		File List
@@ -21,7 +28,12 @@
 			<strong>{folder}</strong>
 			<ul>
 				{#each folderToFilesMap[folder] as file}
-					<li>{file}</li>
+					<li>
+						{file}
+						<button on:click={() => $selectedFile = { folder, file }}>
+							📝
+						</button>
+					</li>
 				{/each}
 			</ul>
 		{/each}

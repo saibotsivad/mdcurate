@@ -1,12 +1,7 @@
+import { post } from '$lib/browser/post.js'
 import { toPointer } from 'pointer-props'
 
-
-const patch = operations => fetch('/api/configuration', {
-	method: 'POST',
-	headers: { 'content-type': 'application/json' },
-	body: JSON.stringify(operations),
-})
-	.then(response => response.json())
+const patch = operations => post('/api/configuration', operations)
 	.catch(error => {
 		console.error('There was an error updating the configuration!', error)
 	})

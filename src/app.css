@@ -23,6 +23,16 @@ button {
 	font-family: inherit;
 }
 
+input {
+	border: 1px solid #888;
+	border-radius: 2px;
+}
+button {
+	border: solid 1px #888;
+	border-radius: 4px;
+	background-color: #eee;
+	cursor: pointer;
+}
 button:focus:not(:focus-visible) {
 	outline: none;
 }
