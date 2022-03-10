@@ -22,10 +22,12 @@ Change categories are:
 ### Removed
 ### Security
 
+## [1.0.1](https://github.com/saibotsivad/mdcurate/compare/v1.0.0...v1.0.1) - 2022-03-10
+### Fixed
+- Got some dependencies wrong and declared npm files.
+
 ## [1.0.0](https://github.com/saibotsivad/mdcurate/tree/v1.0.0) - 2022-03-10
 
 This is roughly what I had in mind for functionality, and the UI is good enough to start.
 
 Project initialized from [saibotsivad/init](https://github.com/saibotsivad/init).
-
-[0.0.1]: https://github.com/saibotsivad/mdcurate/compare/v0.0.0...v0.0.1
