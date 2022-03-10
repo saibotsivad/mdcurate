@@ -14,7 +14,7 @@ Change categories are:
 * `Fixed` for any bug fixes.
 * `Security` to invite users to upgrade in case of vulnerabilities.
 
-## [Unreleased]
+## Unreleased
 ### Added
 ### Changed
 ### Deprecated
@@ -22,10 +22,10 @@ Change categories are:
 ### Removed
 ### Security
 
-## [0.0.0] - {{TODO_CURRENT_DATE}}
-### Added
-- Created the base project from [saibotsivad/init](https://github.com/saibotsivad/init).
+## [1.0.0](https://github.com/saibotsivad/mdcurate/tree/v1.0.0) - 2022-03-10
 
-[Unreleased]: https://github.com/saibotsivad/metadata-organizer/compare/v0.0.0...HEAD
-[0.0.1]: https://github.com/saibotsivad/metadata-organizer/compare/v0.0.0...v0.0.1
-[0.0.0]: https://github.com/saibotsivad/metadata-organizer/tree/v0.0.0
+This is roughly what I had in mind for functionality, and the UI is good enough to start.
+
+Project initialized from [saibotsivad/init](https://github.com/saibotsivad/init).
+
+[0.0.1]: https://github.com/saibotsivad/mdcurate/compare/v0.0.0...v0.0.1

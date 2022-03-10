@@ -1,12 +1,9 @@
 {
-  "name": "metadata-organizer",
+  "name": "mdcurate",
   "version": "0.0.0",
   "description": "Tool for curating metadata (also called frontmatter) in markdown files.",
   "type": "module",
-  "bin": {
-    "metadata-organizer": "bin.js",
-    "organizer": "bin.js"
-  },
+  "bin": "bin.js",
   "scripts": {
     "prepublishOnly": "npm run build",
     "dev": "svelte-kit dev",
@@ -14,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saibotsivad/metadata-organizer.git"
+    "url": "git+https://github.com/saibotsivad/mdcurate.git"
   },
   "keywords": [
     "markdown",
@@ -33,9 +30,9 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
-    "url": "https://github.com/saibotsivad/metadata-organizer/issues"
+    "url": "https://github.com/saibotsivad/mdcurate/issues"
   },
-  "homepage": "https://github.com/saibotsivad/metadata-organizer",
+  "homepage": "https://github.com/saibotsivad/mdcurate",
   "devDependencies": {
     "@saibotsivad/eslint-config-saibotsivad": "*"
   },

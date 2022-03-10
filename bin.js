@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import sade from 'sade'
 import polka from 'polka'
 
-sade('metadata-organizer', true)
+sade('mdcurate', true)
 	.version(JSON.parse(readFileSync('./package.json', 'utf8')).version)
 	.describe('Launch the metadata organizer website so you can curate your markdown frontmatter.')
 	.option('--port, -p', 'Set the port to run the server on.', 3000)
