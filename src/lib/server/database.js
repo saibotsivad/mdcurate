@@ -100,6 +100,5 @@ export const removeFolder = folder => {
 
 export const getFolderFiles = () => klona(inspectedFolderFiles)
 
-// TODO remove in prod
+// For easier testing you can set a value here, so every time it restarts in dev mode it'll have this one set still.
 // addFolder('/path/to/folder', [ 'md' ])
-addFolder('/Users/saibotsivad/Development/thinking/bb-web-md/Web', [ 'md' ])

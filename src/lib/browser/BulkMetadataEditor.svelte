@@ -80,13 +80,6 @@
 	code.inline {
 		padding: 0.2em 0.3em;
 	}
-	textarea {
-		width: 100%;
-		min-height: 8em;
-	}
-	label {
-		display: block;
-	}
 	button.transform {
 		padding: 0.5em 1em;
 		background-color: var(--primary-bg);
