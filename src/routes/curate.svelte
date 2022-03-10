@@ -1,22 +1,14 @@
-<script context="module">
-	export async function load({ url }) {
-		const configuration = await fetch(url.origin + '/api/configuration').then(r => r.json())
-		return {
-			props: { configuration },
-		}
-	}
-</script>
-
 <script>
 	import MetadataExplorer from '$lib/browser/MetadataExplorer.svelte'
 	import Editor from '$lib/browser/Editor.svelte'
-	export let configuration
+	import BulkMetadataEditor from '$lib/browser/BulkMetadataEditor.svelte'
+	import { configuration, curatorState, fileDetails } from '$lib/browser/stores.js'
+
 	$: shouldWait = Object
-		.keys(configuration.folders || {})
-		.map(folder => configuration.folders[folder].status)
+		.keys($configuration && $configuration.folders || {})
+		.map(folder => $configuration.folders[folder].status)
 		.find(status => status === 'error' || status !== 'loaded')
-	$: needToAddFolders = !Object.keys(configuration?.folders || {}).length
-	$: filesPromise = !shouldWait && !needToAddFolders && fetch('/api/files').then(r => r.json())
+	$: needToAddFolders = !Object.keys($configuration?.folders || {}).length
 </script>
 
 <svelte:head>
@@ -24,8 +16,14 @@
 </svelte:head>
 
 <Editor />
+<BulkMetadataEditor />
 
-{#if shouldWait}
+{#if !Object.keys($configuration.folders || {}).length}
+	<div class="content">
+		<h2>Ope!</h2>
+		<p>You'll need to head to the <a href="/configure">configuration page</a> and add some folders first.</p>
+	</div>
+{:else if shouldWait}
 	<div class="content">
 		<h2>Ope!</h2>
 		<p>There are one or more folders that are still loading or have errors!</p>
@@ -45,12 +43,8 @@
 	</div>
 {:else}
 	<div class="content">
-		{#await filesPromise}
-			<p>Loading the file details...</p>
-		{:then fileData}
-			<MetadataExplorer {fileData} />
-		{:catch error}
-			<p>Oh no, there was an error!</p>
-		{/await}
+		<fieldset disabled={$curatorState !== 'LOADED'}>
+			<MetadataExplorer />
+		</fieldset>
 	</div>
 {/if}

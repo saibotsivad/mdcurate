@@ -1,6 +1,6 @@
 <script>
-	import Collapsing from '$lib/browser/explorer/Collapsing.svelte'
-	import { selectedFile } from '$lib/browser/editor-store.js'
+	import Collapsing from '$lib/browser/Collapsing.svelte'
+	import { selectedFile } from '$lib/browser/stores.js'
 	export let folderFiles
 	const remap = list => {
 		const map = {}
@@ -19,9 +19,10 @@
 	}
 </style>
 
-<Collapsing>
+<Collapsing collapsed bulkEditableFiles={folderFiles}>
 	<span slot="title">
 		File List
+		({folderFiles.length})
 	</span>
 	<div slot="panel">
 		{#each Object.keys(folderToFilesMap || {}) as folder}
@@ -39,3 +40,5 @@
 		{/each}
 	</div>
 </Collapsing>
+
+<hr>

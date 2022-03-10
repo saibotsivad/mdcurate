@@ -1,21 +1,19 @@
-import timers from 'node:timers/promises'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import split from 'just-split'
 import yaml from 'js-yaml'
 
-import { markFolderForReload, getConfiguration } from '$lib/server/database.js'
+import { reloadEverything } from '$lib/server/database.js'
 import { parseFileString } from '$lib/server/file-manager.js'
 
-const renameMetadataKey = async (filepath, original, updated) => {
+const process = async (filepath, modifyMetadata) => {
 	const originalString = await readFile(filepath, 'utf8')
 	const { metadata, blocks, errors } = parseFileString(originalString)
 	if (errors) return errors.map(e => e._filepath = filepath)
-	metadata[updated] = metadata[original]
-	delete metadata[original]
+	const updatedMetadata = modifyMetadata({ metadata, blocks })
 	let updatedString = [
 		'---',
-		yaml.dump(metadata, { schema: yaml.JSON_SCHEMA, quotingType: '"' }).trim(),
+		yaml.dump(updatedMetadata, { schema: yaml.JSON_SCHEMA, quotingType: '"' }).trim(),
 		'---',
 	].join('\n')
 	// TODO this is specific to BB, but whether to output as blockdown or not should come from the configuration file
@@ -23,6 +21,17 @@ const renameMetadataKey = async (filepath, original, updated) => {
 	updatedString += '\n' + blocks[0].content
 	await writeFile(filepath, updatedString, 'utf8')
 }
+
+const renameMetadataKey = async (filepath, original, updated) => process(filepath, ({ metadata }) => {
+	metadata[updated] = metadata[original]
+	delete metadata[original]
+	return metadata
+})
+
+const removeMetadataKey = async (filepath, key) => process(filepath, ({ metadata }) => {
+	delete metadata[key]
+	return metadata
+})
 
 const actionFun = {
 	rename: async ({ original, updated, files }) => {
@@ -36,20 +45,30 @@ const actionFun = {
 				if (errors) totalErrors.push(...errors)
 			}
 		}
-		const folders = {}
-		for (const { folder } of files) {
-			folders[folder] = true
-			markFolderForReload(folder)
+		await reloadEverything()
+		console.log(`Done renaming keys after ${Date.now() - start}ms`)
+		return {
+			ok: totalErrors.length === 0,
+			errors: totalErrors.length ? totalErrors : undefined,
 		}
-		while (Object.keys(folders).length) {
-			await timers.setTimeout(1000)
-			console.log('checking...')
-			const configuration = getConfiguration()
-			for (const folder of Object.keys(configuration.folders)) {
-				if (configuration.folders[folder].status !== 'loading') delete folders[folder]
+	},
+	remove: async ({ key, files }) => {
+		const start = Date.now()
+		console.log(`Removing metadata key "${key}" from ${files.length} files.`)
+		const chunks = split(files, 25)
+		const totalErrors = []
+		for (const chunk of chunks) {
+			const out = await Promise.all(chunk.map(({ file, folder }) => removeMetadataKey(join(folder, file), key)))
+			for (const errors of out) {
+				if (errors) totalErrors.push(...errors)
 			}
 		}
-		console.log(`Done renaming keys after ${Date.now() - start}ms`)
+		await reloadEverything()
+		console.log(`Done removing keys after ${Date.now() - start}ms`)
+		return {
+			ok: totalErrors.length === 0,
+			errors: totalErrors.length ? totalErrors : undefined,
+		}
 	},
 }
 

@@ -1,10 +1,11 @@
 <script>
 	import { minimumDelay } from '$lib/delay.js'
 	import { post } from '$lib/browser/post.js'
-	import FileListing from '$lib/browser/explorer/FileListing.svelte'
-	import UniqueKeyValues from '$lib/browser/explorer/UniqueKeyValues.svelte'
-	export let fileData
+	import FileListing from '$lib/browser/FileListing.svelte'
+	import UniqueKeyValues from '$lib/browser/UniqueKeyValues.svelte'
+	import { selectedFile, fileDetails } from '$lib/browser/stores.js'
 
+	$: fileData = $fileDetails
 	$: metadataKeys = Object.keys(fileData.metadataKeys || {})
 
 	let panel
@@ -24,20 +25,42 @@
 		return folderFiles
 	}
 
+	$: folderFiles = panel && folderFilesForKey(panel.key, panel.subtype === 'with')
+
+	$: groupedErrors = fileData.errors?.reduce((map, { folder, file, value }) => {
+		map[folder] = map[folder] || {}
+		map[folder][file] = map[folder][file] || []
+		map[folder][file].push(value)
+		return map
+	}, {})
+	let showErrors = {}
+
 	let saving = {}
 	let saved = {}
 	const renameKey = (original, updated) => {
 		saving[original] = true
-		minimumDelay(600, post('/api/metadata', { action: 'rename', params: { original, updated, files: fileData.metadataKeys[original] } }))
+		minimumDelay(500, post('/api/metadata', { action: 'rename', params: { original, updated, files: fileData.metadataKeys[original] } }))
 			.then(() => fetch('/api/files'))
 			.then(r => r.json())
 			.then(updatedFileData => {
-				fileData = updatedFileData
+				$fileDetails = updatedFileData
 				saving = {}
 				saved = { [updated]: true }
 				setTimeout(() => {
 					saved = {}
 				}, 500)
+			})
+	}
+
+	let removingKey
+	const removeKey = key => {
+		removingKey = true
+		minimumDelay(500, post('/api/metadata', { action: 'remove', params: { key, files: fileData.metadataKeys[key] } }))
+			.then(() => fetch('/api/files'))
+			.then(r => r.json())
+			.then(updatedFileData => {
+				$fileDetails = updatedFileData
+				removingKey = false
 			})
 	}
 </script>
@@ -46,16 +69,12 @@
 	div.wrapper {
 		display: flex;
 	}
-	fieldset {
-		border: none;
-		padding: 0;
-		margin: 0;
-	}
 	.explorer {
 		margin-left: 4em;
 		padding-left: 4em;
 		border-left: 4px solid var(--primary-bg);
 		min-height: 100%;
+		flex-grow: 1;
 	}
 	td div {
 		display: flex;
@@ -103,7 +122,50 @@
 	tr:hover {
 		background-color: var(--primary-light);
 	}
+	.explorer h2 {
+		padding: 0.5em;
+		background-color: var(--primary-bg);
+	}
+	tr.selected {
+		background-color: var(--info-bg);
+	}
+	tr.selected button.same-name {
+		border-color: var(--info-bg);
+		background-color: var(--info-bg);
+		color: var(--info-bg);
+	}
 </style>
+
+{#if groupedErrors}
+	<div class="wrapper" style="border-bottom: 4px solid var(--primary-bg);">
+		<div class="data">
+			<h2>Loading Errors!</h2>
+			{#each Object.keys(groupedErrors) as folder}
+				<strong>{folder}</strong>
+				<ul>
+					{#each Object.keys(groupedErrors[folder]) as file}
+						<li>
+							{file}
+							<button on:click={() => $selectedFile = { folder, file }}>
+								📝
+							</button>
+							<span style="margin-left: 2em;">Errors:</span>
+							<code>{groupedErrors[folder][file].map(error => error.name).filter(Boolean).join(', ')}</code>
+							<button on:click={() => { showErrors[folder] = showErrors[folder] || {}; showErrors[folder][file] = !showErrors[folder][file] }}>
+								🔍
+							</button>
+							{#if showErrors[folder]?.[file]}
+								{#each groupedErrors[folder][file] as error}
+									<pre>{JSON.stringify(error, undefined, 4)}</pre>
+								{/each}
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			{/each}
+		</div>
+	</div>
+{/if}
 
 <div class="wrapper">
 	<div class="data">
@@ -112,7 +174,7 @@
 		{#if !metadataKeys.length}
 			<p><em>No metadata keys found.</em></p>
 		{:else}
-			<fieldset disabled={Object.keys(saving).length}>
+			<fieldset disabled={Object.keys(saving).length || removingKey}>
 				<table>
 					<thead>
 						<tr>
@@ -120,10 +182,10 @@
 								Key Name
 							</th>
 							<th>
-								Count
+								Files With
 							</th>
 							<th>
-								Files w/o
+								Files Without
 							</th>
 							<th>
 								Delete
@@ -133,7 +195,7 @@
 					<tbody>
 						{#each metadataKeys as key}
 						{@const usageCount = fileData.metadataKeys[key].length}
-							<tr>
+							<tr class:selected={panel?.key === key}>
 								<td class="filename-input">
 									<input
 										type="text"
@@ -175,7 +237,7 @@
 									</div>
 								</td>
 								<td>
-									<button>
+									<button disabled={removingKey} on:click={() => removeKey(key)}>
 										🗑
 									</button>
 								</td>
@@ -188,9 +250,14 @@
 	</div>
 	{#if panel}
 		<div class="explorer">
-			<h2>Explorer</h2>
 			{#if panel.type === 'metadataKeys'}
-				<FileListing folderFiles={folderFilesForKey(panel.key, panel.subtype === 'with')} />
+				<h2>
+					<small>
+						<code>{panel.key}</code>
+						<span style="font-weight: normal;">{panel.subtype}</span>
+					</small>
+				</h2>
+				<FileListing {folderFiles} />
 				{#if panel.subtype === 'with'}
 					<UniqueKeyValues key={panel.key} values={fileData.metadataKeyValues[panel.key]} />
 				{/if}

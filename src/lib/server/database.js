@@ -1,3 +1,4 @@
+import timers from 'node:timers/promises'
 import { klona } from 'klona'
 import { loadAllFiles } from '$lib/server/file-manager.js'
 import { inspectFolderFileMap } from '$lib/server/inspector.js'
@@ -48,7 +49,7 @@ setInterval(() => {
 			loading = false
 		})
 	}
-}, 500)
+}, 100)
 
 let removing
 setInterval(() => {
@@ -70,7 +71,7 @@ setInterval(() => {
 			removing = false
 		})
 	}
-}, 500)
+}, 100)
 
 export const getConfiguration = () => klona(configuration)
 
@@ -82,8 +83,14 @@ export const addFolder = (folder, extensions) => {
 	return klona(configuration)
 }
 
-export const markFolderForReload = folder => {
-	if (configuration.folders[folder]) configuration.folders[folder].status = 'loading'
+export const reloadEverything = async () => {
+	for (const folder in configuration.folders) {
+		configuration.folders[folder].status = 'loading'
+	}
+	while (Object.keys(configuration.folders).find(folder => configuration.folders[folder].status === 'loading')) {
+		await timers.setTimeout(1000)
+		console.log('Waiting for reload to complete...')
+	}
 }
 
 export const removeFolder = folder => {

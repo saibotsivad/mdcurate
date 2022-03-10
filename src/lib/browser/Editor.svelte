@@ -1,11 +1,12 @@
 <script>
 	import { post } from '$lib/browser/post.js'
-	import { selectedFile } from '$lib/browser/editor-store.js'
+	import { selectedFile, fileDetails } from '$lib/browser/stores.js'
 	let panelOpen
 	let panel
 	let previousContents
 	let contents
 	let saving
+	let showControlCharacters
 
 	const close = () => {
 		$selectedFile = null
@@ -24,15 +25,31 @@
 		if (!panel?.contains(event.target)) close()
 	}
 
+	const escapeHandler = event => {
+		if (event.keyCode === 27) close()
+	}
+
 	const saveFile = () => {
 		saving = true
 		post('/api/file', { action: 'write', ...$selectedFile, contents })
-			.then(() => close())
-			.then(() => {
+			.then(() => fetch('/api/files'))
+			.then(r => r.json())
+			.then(updatedFileData => {
+				$fileDetails = updatedFileData
+				close()
 				saving = false
 			})
 	}
+
+	const makeControlCharactersVisible = string => string
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/ /g, '<span class="char">⎵</span>')
+		.replace(/\r\n/g, '\n') // just in case
+		.replace(/\n/g, '<span class="char">¶</span><br>')
 </script>
+
+<svelte:window on:keyup={escapeHandler} />
 
 <svelte:head>
 	{#if panelOpen}
@@ -68,16 +85,18 @@
 		width: 100%;
 		height: calc(100vh - 12rem); /* all the viewport minus the padding and text stuff */
 	}
-	fieldset {
-		border: none;
-		padding: 0;
-		margin: 0;
+	.preview {
+		border: 1px solid #888;
+		padding: 0.2em;
+		font-family: monospace;
+		line-break: anywhere;
+		height: calc(100vh - 12rem);
+		overflow-y: scroll;
+	}
+	:global(.preview .char) {
+		color: #ef4848;
 	}
 </style>
-
-<!--
-TODO listen for any window click that's outside the panel and close
--->
 
 {#if filePromise}
 	<div class="editor-scrim" on:click={scrimClickHandler}>
@@ -91,6 +110,15 @@ TODO listen for any window click that's outside the panel and close
 							<strong>Folder:</strong> <code>{$selectedFile.folder}</code>
 							<br>
 							<strong>File:</strong> <code>{$selectedFile.file}</code>
+							<br>
+							<button style="margin-top: 0.6em;" on:click={() => showControlCharacters = !showControlCharacters}>
+								{#if showControlCharacters}
+									Hide
+								{:else}
+									Show
+								{/if}
+								Control Characters
+							</button>
 						</p>
 						<button on:click={() => { $selectedFile = null; panelOpen = false }} style="margin-right: 1em; width: 8rem;">
 							Cancel
@@ -103,12 +131,18 @@ TODO listen for any window click that's outside the panel and close
 							{/if}
 						</button>
 					</div>
-					<textarea
-						name="contents"
-						id="editor-panel-contents"
-						value={response.contents}
-						on:input={event => contents = event.target.value}
-					/>
+					{#if showControlCharacters}
+						<div class="preview">
+							{@html makeControlCharactersVisible(response.contents)}
+						</div>
+					{:else}
+						<textarea
+							name="contents"
+							id="editor-panel-contents"
+							value={response.contents}
+							on:input={event => contents = event.target.value}
+						/>
+					{/if}
 				</fieldset>
 			{/await}
 		</div>

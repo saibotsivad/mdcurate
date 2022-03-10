@@ -1,14 +1,21 @@
 <script>
 	import { page } from '$app/stores'
+	import { curatorState } from '$lib/browser/stores.js'
+	$: stateColor = $curatorState === 'LOADED' && 'var(--success-bg)'
+		|| $curatorState === 'ERROR' && 'var(--error-bg)'
+		|| 'var(--info-bg)'
 </script>
 
 <header>
 	<nav>
 		<ul>
-			<li class:active={$page.url.pathname === '/'}>
+			<li>
+				<span style="background-color: {stateColor};">&nbsp;</span>
+			</li>
+			<li class="nav-item" class:active={$page.url.pathname === '/'}>
 				<a href="/">Configure</a>
 			</li>
-			<li class:active={$page.url.pathname === '/curate'}>
+			<li class="nav-item" class:active={$page.url.pathname === '/curate'}>
 				<a href="/curate">Curate</a>
 			</li>
 		</ul>
@@ -41,7 +48,7 @@
 	li.active {
 		border-bottom-color: var(--primary-highlight);
 	}
-	li:hover {
+	li.nav-item:hover {
 		border-bottom-color: var(--primary-light);
 	}
 	a {
@@ -54,5 +61,12 @@
 	}
 	a:hover {
 		color: var(--primary-light);
+	}
+	span {
+		display: block;
+		margin: 0 2em;
+		border-radius: 2em;
+		padding: 1em;
+		line-height: 0.3;
 	}
 </style>

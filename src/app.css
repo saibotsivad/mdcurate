@@ -36,6 +36,12 @@ button {
 button:focus:not(:focus-visible) {
 	outline: none;
 }
+button {
+	cursor: default;
+}
+button:enabled {
+	cursor: pointer;
+}
 
 .content {
 	padding: 1em 2em;
@@ -50,4 +56,22 @@ table thead {
 }
 th, tr, td {
 	padding: 0.2em 2em;
+}
+
+code {
+	line-height: 2;
+}
+
+pre, code {
+	background-color: var(--info-bg);
+	color: var(--info-text);
+	padding: 0.4em 1em;
+	border-radius: 0.3em;
+	font-weight: normal;
+}
+
+fieldset {
+	border: none;
+	padding: 0;
+	margin: 0;
 }

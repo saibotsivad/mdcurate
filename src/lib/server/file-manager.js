@@ -16,7 +16,6 @@ export const parseFileString = string => {
 		try {
 			metadata = yaml.load(frontmatter.content, { schema: yaml.JSON_SCHEMA })
 		} catch (error) {
-			console.log('-----------', error, frontmatter.content)
 			errors = [ error ]
 		}
 	} else {

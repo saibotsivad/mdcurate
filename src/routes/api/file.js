@@ -1,3 +1,4 @@
+import { reloadEverything } from '$lib/server/database.js'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 
@@ -11,6 +12,7 @@ export async function post({ request }) {
 	}
 	if (action === 'write') {
 		await writeFile(join(folder, file), contents, 'utf8')
+		await reloadEverything()
 		return {
 			status: 200,
 		}
