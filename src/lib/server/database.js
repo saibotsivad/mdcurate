@@ -113,4 +113,3 @@ export const getFolderFiles = () => klona(inspectedFolderFiles)
 
 // For easier testing you can set a value here, so every time it restarts in dev mode it'll have this one set still.
 // await addFolder('/path/to/folder', [ 'md' ])
-await addFolder('/Users/saibotsivad/Development/git/KayserCommentary/Markdown/Web', [ 'md' ])
