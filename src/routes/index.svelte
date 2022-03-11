@@ -121,19 +121,20 @@
 	#extensions {
 		width: 8em;
 	}
+	code {
+		padding: 0 1em;
+		display: inline-block;
+	}
 	.value {
 		flex-grow: 1;
 	}
 	.value code {
 		width: 100%;
-		display: inline-block;
-		padding: 0 1em;
 	}
 	.extension {
 		margin-left: 2em;
 	}
 	.extension code, .wide code {
-		padding: 0.4em 1em;
 		border-radius: 0.3em;
 		background-color: var(--info-bg);
 	}
@@ -142,8 +143,6 @@
 		align-items: end;
 	}
 	.wide code {
-		padding: 0.5em 1em;
-		display: inline-block;
 		width: calc(100% - 3em);
 	}
 	.selecting {
@@ -207,7 +206,7 @@
 								id="extensions"
 								bind:value={extensions}
 								type="text"
-								placeholder="md, txt"
+								placeholder="md"
 							>
 						</div>
 						<button class="add" on:click={adder}>
