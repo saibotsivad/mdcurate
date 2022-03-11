@@ -1,7 +1,15 @@
 <script>
-	import { bulkEditorFiles } from '$lib/browser/stores.js'
+	import { bulkEditorFileMap } from '$lib/browser/stores.js'
 	export let collapsed
-	export let bulkEditableFiles
+	export let fileMap
+
+	let count = 0
+	$: {
+		count = 0
+		for (const folder in fileMap || {}) {
+			for (const file in fileMap[folder] || {}) count++
+		}
+	}
 </script>
 
 <h3>
@@ -13,8 +21,8 @@
 			📂️
 		{/if}
 	</button>
-	{#if bulkEditableFiles?.length}
-		<button style="margin-left: 2em;" on:click={() => $bulkEditorFiles = bulkEditableFiles}>
+	{#if count}
+		<button style="margin-left: 1em;" on:click={() => $bulkEditorFileMap = fileMap}>
 			Bulk Edit 🗂
 		</button>
 	{/if}

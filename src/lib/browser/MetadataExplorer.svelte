@@ -9,15 +9,18 @@
 	$: metadataKeys = Object.keys(fileData.metadataKeys || {})
 
 	let panel
+	let renameOpen = {}
 	let rename = {}
 
 	const folderFilesForKey = (key, filesWith) => {
 		const folderFiles = []
 		if (filesWith) {
-			folderFiles.push(...fileData.metadataKeys[key])
+			for (const folder in fileData.metadataKeys[key]) {
+				for (const file in fileData.metadataKeys[key][folder]) folderFiles.push({ folder, file })
+			}
 		} else {
 			for (const { file, folder } of fileData.folderFiles) {
-				if (!fileData.metadataKeys[key].find(f => f.file === file && f.folder === folder)) {
+				if (!fileData.metadataKeys[key]?.[folder]?.[file]) {
 					folderFiles.push({ file, folder })
 				}
 			}
@@ -36,18 +39,17 @@
 	let showErrors = {}
 
 	let saving = {}
-	let saved = {}
 	const renameKey = (original, updated) => {
 		saving[original] = true
-		minimumDelay(500, post('/api/metadata', { action: 'rename', params: { original, updated, files: fileData.metadataKeys[original] } }))
+		minimumDelay(500, post('/api/metadata', { action: 'rename', params: { original, updated, fileMap: fileData.metadataKeys[original] } }))
 			.then(() => fetch('/api/files'))
 			.then(r => r.json())
 			.then(updatedFileData => {
 				$fileDetails = updatedFileData
 				saving = {}
-				saved = { [updated]: true }
 				setTimeout(() => {
-					saved = {}
+					renameOpen = {}
+					rename = {}
 				}, 500)
 			})
 	}
@@ -55,7 +57,7 @@
 	let removingKey
 	const removeKey = key => {
 		removingKey = true
-		minimumDelay(500, post('/api/metadata', { action: 'remove', params: { key, files: fileData.metadataKeys[key] } }))
+		minimumDelay(500, post('/api/metadata', { action: 'remove', params: { key, fileMap: fileData.metadataKeys[key] } }))
 			.then(() => fetch('/api/files'))
 			.then(r => r.json())
 			.then(updatedFileData => {
@@ -97,22 +99,6 @@
 		border-color: #fff;
 		background-color: #fff;
 		color: #fff;
-	}
-	@keyframes onClearAnimation {
-		0% {
-			background-color: var(--success-bg);
-		}
-		80% {
-			background-color: #fff;
-		}
-		100% {
-			background-color: #fff;
-		}
-	}
-	input.saved {
-		background-color: var(--success-bg);
-		animation-name: onClearAnimation;
-		animation-duration: 1s;
 	}
 	tr:hover button.same-name {
 		border-color: var(--primary-light);
@@ -194,27 +180,33 @@
 					</thead>
 					<tbody>
 						{#each metadataKeys.sort() as key}
-						{@const usageCount = fileData.metadataKeys[key].length}
+						{@const usageCount = fileData.metadataKeys[key].__fileCount}
 							<tr class:selected={panel?.key === key}>
 								<td class="filename-input">
-									<input
-										type="text"
-										value={key}
-										class:saved={saved[key]}
-										on:input={event => rename[key] = event.target.value}
-									>
-									<button
-										class="rename"
-										class:same-name={!saving[key] && !rename[key] || rename[key] === key}
-										disabled={!rename[key] || rename[key] === key}
-										on:click={() => renameKey(key, rename[key])}
-									>
-										{#if saving[key]}
-											Saving...
-										{:else}
-											Rename
-										{/if}
+									<button on:click={() => renameOpen[key] = ! renameOpen[key]}>
+										📝
 									</button>
+									{#if renameOpen[key]}
+										<input
+											type="text"
+											value={key}
+											on:input={event => rename[key] = event.target.value}
+										>
+										<button
+											class="rename"
+											class:same-name={!saving[key] && !rename[key] || rename[key] === key}
+											disabled={!rename[key] || rename[key] === key}
+											on:click={() => renameKey(key, rename[key])}
+										>
+											{#if saving[key]}
+												Saving...
+											{:else}
+												Rename
+											{/if}
+										</button>
+									{:else}
+										{key}
+									{/if}
 								</td>
 								<td>
 									<div>
@@ -259,7 +251,7 @@
 				</h2>
 				<FileListing {folderFiles} />
 				{#if panel.subtype === 'with'}
-					<UniqueKeyValues key={panel.key} values={fileData.metadataKeyValues[panel.key]} />
+					<UniqueKeyValues key={panel.key} {fileData} />
 				{/if}
 			{/if}
 		</div>

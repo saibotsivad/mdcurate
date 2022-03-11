@@ -2,20 +2,26 @@
 	import ContentEditable from '$lib/browser/ContentEditable.svelte'
 	import { writable } from 'svelte/store'
 	import PanelClick from '$lib/browser/PanelClick.svelte'
-	import { bulkEditorFiles, fileDetails } from '$lib/browser/stores.js'
+	import { bulkEditorFileMap, fileDetails } from '$lib/browser/stores.js'
 	import lodash from 'lodash'
 	import { post } from '$lib/browser/post.js'
 
 	// We know this isn't cyclic, but if we put the statement in the `subscribe`
 	// it'll get flagged as such and won't compile, so we pull it out to confuse
 	// the linter.
-	const clear = () => $bulkEditorFiles = null
+	const clear = () => $bulkEditorFileMap = null
 
-	$: panelOpenStore = writable($bulkEditorFiles)
+	$: panelOpenStore = writable($bulkEditorFileMap)
 	$: {
 		panelOpenStore.subscribe(isOpen => {
 			if (!isOpen) clear()
 		})
+	}
+
+	let totalFileCount = 0
+	$: {
+		totalFileCount = 0
+		for (const folder in $bulkEditorFileMap || {}) totalFileCount += Object.keys($bulkEditorFileMap[folder]).length
 	}
 
 	let showExamples
@@ -66,13 +72,13 @@
 	let runningTransform
 	const runTransform = () => {
 		runningTransform = true
-		post('/api/transform', { runnable, files: $bulkEditorFiles })
+		post('/api/transform', { runnable, files: $bulkEditorFileMap })
 			.then(() => fetch('/api/files'))
 			.then(r => r.json())
 			.then(updatedFileData => {
 				$fileDetails = updatedFileData
 				runningTransform = false
-				$bulkEditorFiles = null
+				$bulkEditorFileMap = null
 			})
 			.catch(error => {
 				console.error('Error while POSTing the transform.', error)
@@ -180,10 +186,18 @@
 	<p>If this transform looks good to you, apply it to all selected files.</p>
 	<p>
 		<button class="transform" disabled={!runnable || runnableErrors || runningTransform} on:click={runTransform}>
-			Apply Transform to {$bulkEditorFiles.length} Files
+			Apply Transform to {totalFileCount} Files
 		</button>
 		{#if runningTransform}
 			Updating files...
 		{/if}
 	</p>
+	{#each Object.keys($bulkEditorFileMap) as folder}
+		<p><strong>{folder}</strong></p>
+		<ul>
+			{#each Object.keys($bulkEditorFileMap[folder]) as file}
+				<li>{file}</li>
+			{/each}
+		</ul>
+	{/each}
 </PanelClick>

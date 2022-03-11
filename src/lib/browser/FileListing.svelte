@@ -5,8 +5,8 @@
 	const remap = list => {
 		const map = {}
 		for (const { file, folder } of list) {
-			map[folder] = map[folder] || []
-			map[folder].push(file)
+			map[folder] = map[folder] || {}
+			map[folder][file] = true
 		}
 		return map
 	}
@@ -19,7 +19,7 @@
 	}
 </style>
 
-<Collapsing collapsed bulkEditableFiles={folderFiles}>
+<Collapsing collapsed fileMap={folderToFilesMap}>
 	<span slot="title">
 		File List
 		({folderFiles.length})
@@ -28,7 +28,7 @@
 		{#each Object.keys(folderToFilesMap || {}) as folder}
 			<strong>{folder}</strong>
 			<ul>
-				{#each folderToFilesMap[folder] as file}
+				{#each Object.keys(folderToFilesMap[folder] || {}) as file}
 					<li>
 						{file}
 						<button on:click={() => $selectedFile = { folder, file }}>

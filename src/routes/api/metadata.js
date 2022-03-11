@@ -33,8 +33,16 @@ const removeMetadataKey = async (filepath, key) => process(filepath, ({ metadata
 	return metadata
 })
 
+const fileMapToFiles = fileMap => Object
+	.keys(fileMap)
+	.reduce((list, folder) => {
+		for (const file in fileMap[folder]) list.push({ folder, file })
+		return list
+	}, [])
+
 const actionFun = {
-	rename: async ({ original, updated, files }) => {
+	rename: async ({ original, updated, fileMap }) => {
+		const files = fileMapToFiles(fileMap)
 		const start = Date.now()
 		console.log(`Renaming metadata key in ${files.length} files from "${original}" to "${updated}".`)
 		const chunks = split(files, 25)
@@ -52,7 +60,8 @@ const actionFun = {
 			errors: totalErrors.length ? totalErrors : undefined,
 		}
 	},
-	remove: async ({ key, files }) => {
+	remove: async ({ key, fileMap }) => {
+		const files = fileMapToFiles(fileMap)
 		const start = Date.now()
 		console.log(`Removing metadata key "${key}" from ${files.length} files.`)
 		const chunks = split(files, 25)

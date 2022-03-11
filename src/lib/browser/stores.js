@@ -15,4 +15,4 @@ export const fileDetails = writable(null)
 
 export const selectedFile = writable(null)
 
-export const bulkEditorFiles = writable(null)
+export const bulkEditorFileMap = writable(null)
