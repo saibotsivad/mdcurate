@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
 import { readFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import sade from 'sade'
 import polka from 'polka'
 
+const __dirname = dirname(fileURLToPath(import.meta.url))
+
 sade('mdcurate', true)
-	.version(JSON.parse(readFileSync('./package.json', 'utf8')).version)
+	.version(JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf8')).version)
 	.describe('Launch the metadata organizer website so you can curate your markdown frontmatter.')
 	.option('--port, -p', 'Set the port to run the server on.', 3000)
 	.action(async ({ port }) => {
