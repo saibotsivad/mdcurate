@@ -47,7 +47,7 @@ The curator screen for inspecting the `tags` metadata looks something like this:
 
 ![Show Old Tags](screenshots/show-old-tags.png)
 
-If you found that in some files you used `tag` instead of `tags`, you can simply rename it. If you have a metadata property that you don't use anymore, you can simply delete it:
+If you found that in some files you used `tag` instead of `tags`, you can simply rename the property. If you have a metadata property that you don't use anymore, you can simply delete it:
 
 ![Action Gif](screenshots/action.gif)
 
@@ -60,7 +60,8 @@ Or if you wanted to change the tag `behaviour` to `behavior` across all files, y
 By default, this launches a server using port 3000. You can set that with the `--port` or `-p` flag:
 
 ```bash
-organizer -p 8080
+# if installed globally
+mdcurate -p 8080
 # or with npx
 npx mdcurate -p 8080
 ```
