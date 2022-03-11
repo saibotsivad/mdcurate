@@ -1,19 +1,9 @@
-<script context="module">
-	export async function load({ url }) {
-		const configuration = await fetch(url.origin + '/api/configuration').then(r => r.json())
-		return {
-			props: { configuration },
-		}
-	}
-</script>
-
 <script>
 	import { onMount } from 'svelte'
-	import StatusText from '$lib/browser/StatusText.svelte'
-	import { addFolder, removeFolder } from '$lib/browser/configuration.js'
 	import { DEFAULT_EXTENSIONS } from '$lib/variables.js'
-
-	export let configuration
+	import { configuration, fileDetails } from '$lib/browser/stores.js'
+	import { post } from '$lib/browser/post.js'
+	import { toPointer } from 'pointer-props'
 
 	let selectedDirectory = []
 	let extensions = ''
@@ -34,15 +24,38 @@
 				fetch('/api/configuration')
 					.then(r => r.json())
 					.then(body => {
-						configuration.folders = { ...body.folders }
-						for (const folder in configuration.folders) {
-							if (configuration.folders[folder].status !== 'loaded' && configuration.folders[folder].status !== 'error') shouldFetchConfiguration = true
+						$configuration.folders = { ...body.folders }
+						for (const folder in $configuration.folders) {
+							if ($configuration.folders[folder].status !== 'loaded' && $configuration.folders[folder].status !== 'error') shouldFetchConfiguration = true
 						}
 					})
 			}
 		}, 500)
 		return () => clearInterval(interval)
 	})
+
+	const patch = operations => post('/api/configuration', operations)
+		.catch(error => {
+			console.error('There was an error updating the configuration!', error)
+		})
+
+	const addFolder = (folder, extensions) => patch([ {
+		op: 'add',
+		path: toPointer([ 'folders', folder ]),
+		value: { extensions },
+	} ])
+
+	const removeFolder = folder => patch([ {
+		op: 'remove',
+		path: toPointer([ 'folders', folder ]),
+	} ])
+
+	const reloadFiles = () => fetch('/api/files')
+		.then(r => r.json())
+		.then(updatedFileData => {
+			$fileDetails = updatedFileData
+			saving = false
+		})
 
 	const adder = () => {
 		saving = true
@@ -52,21 +65,19 @@
 		if (!ext.length) ext = undefined
 		addFolder('/' + selectedDirectory.join('/'), ext)
 			.then(updated => {
-				configuration = updated
-				saving = false
+				$configuration = updated
 				selectedDirectory = []
 				dirsPromise = undefined
-				shouldFetchConfiguration = true
 			})
+			.then(reloadFiles)
 	}
 	const remover = folder => {
 		saving = true
 		removeFolder(folder)
 			.then(updated => {
-				configuration = updated
-				saving = false
-				shouldFetchConfiguration = true
+				$configuration = updated
 			})
+			.then(reloadFiles)
 	}
 </script>
 
@@ -113,11 +124,16 @@
 	.value {
 		flex-grow: 1;
 	}
-	.status {
+	.value code {
+		width: 100%;
+		display: inline-block;
 		padding: 0 1em;
 	}
-	.extension, .wide code {
-		padding: 0.3em 1em;
+	.extension {
+		margin-left: 2em;
+	}
+	.extension code, .wide code {
+		padding: 0.4em 1em;
 		border-radius: 0.3em;
 		background-color: var(--info-bg);
 	}
@@ -151,85 +167,83 @@
 	<p>
 		If you don't set a file extension (it's a comma separated list) it'll use <code>md</code> by default.
 	</p>
-	<ul class="existing">
-		{#each Object.keys(configuration?.folders || {}) as folder}
-			<li>
-				<button class="remove" on:click={() => remover(folder)} disabled={configuration.folders[folder] === 'removing'}>
-					Remove
-				</button>
-				<span class="value">
-					<code>{folder}</code>
-					<code class="extension">{(configuration.folders[folder].extensions || DEFAULT_EXTENSIONS).map(ext => `*.${ext}`).join(',')}</code>
-				</span>
-				<span class="status">
-					<StatusText folder={configuration.folders[folder]} />
-				</span>
-			</li>
-		{/each}
-	</ul>
+	<fieldset disabled={saving}>
+		<ul class="existing">
+			{#each Object.keys($configuration?.folders || {}) as folder}
+				<li>
+					<button class="remove" on:click={() => remover(folder)} disabled={$configuration.folders[folder] === 'removing'}>
+						Remove
+					</button>
+					<span class="value">
+						<code>{folder}</code>
+					</span>
+					<span class="extension">
+						<code>{($configuration.folders[folder].extensions || DEFAULT_EXTENSIONS).map(ext => `*.${ext}`).join(',')}</code>
+					</span>
+				</li>
+			{/each}
+		</ul>
+	</fieldset>
 </div>
 
 <div class="content" style="padding-top: 0;">
-	{#if dirsPromise}
-		<div class="selecting">
-			{#if selectedDirectory}
-				<div class="selected-path">
-					<div class="wide">
-						Selected Folder
-						<br>
-						<code>
-							/{selectedDirectory.join('/')}
-						</code>
+	<fieldset disabled={saving}>
+		{#if dirsPromise}
+			<div class="selecting">
+				{#if selectedDirectory}
+					<div class="selected-path">
+						<div class="wide">
+							Selected Folder
+							<br>
+							<code>
+								/{selectedDirectory.join('/')}
+							</code>
+						</div>
+						<div style="margin-right: 1em;">
+							<label for="extensions">
+								Extensions
+							</label>
+							<input
+								id="extensions"
+								bind:value={extensions}
+								type="text"
+								placeholder="md, txt"
+							>
+						</div>
+						<button class="add" on:click={adder}>
+							Add Folder
+						</button>
 					</div>
-					<div style="margin-right: 1em;">
-						<label for="extensions">
-							Extensions
-						</label>
-						<input
-							id="extensions"
-							bind:value={extensions}
-							type="text"
-							placeholder="md, txt"
-						>
-					</div>
-					<button class="add" on:click={adder}>
-						Add Folder
-					</button>
-				</div>
-			{/if}
-			<p>Folders</p>
-			{#await dirsPromise}
-				Loading dirs...
-			{:then dirs}
-				<ul>
-					{#if selectedDirectory.length}
-						<li>
-							<button on:click={() => { selectedDirectory.pop(); selectedDirectory = [ ...selectedDirectory ]; dirsPromise = fetchDirs() }}>
-								...
-							</button>
-						</li>
-					{/if}
-					{#each dirs as dir}
-						<li>
-							<button on:click={() => { selectedDirectory = [ ...selectedDirectory, dir ]; dirsPromise = fetchDirs() }}>
-								{dir}
-							</button>
-						</li>
-					{/each}
-				</ul>
-			{:catch error}
-				<strong>Error Loading Directories</strong>
-				<pre>{JSON.stringify(error, undefined, 4)}</pre>
-			{/await}
-		</div>
-	{:else}
-		<button on:click={() => dirsPromise = fetchDirs()}>
-			Add Folder
-		</button>
-	{/if}
-</div>
-
-<div class="content">
-	<h2>Metadata</h2>
-	<p>Define specific properties in your metadata.</p>
+				{/if}
+				<p>Folders</p>
+				{#await dirsPromise}
+					Loading dirs...
+				{:then dirs}
+					<ul>
+						{#if selectedDirectory.length}
+							<li>
+								<button on:click={() => { selectedDirectory.pop(); selectedDirectory = [ ...selectedDirectory ]; dirsPromise = fetchDirs() }}>
+									...
+								</button>
+							</li>
+						{/if}
+						{#each dirs as dir}
+							<li>
+								<button on:click={() => { selectedDirectory = [ ...selectedDirectory, dir ]; dirsPromise = fetchDirs() }}>
+									{dir}
+								</button>
+							</li>
+						{/each}
+					</ul>
+				{:catch error}
+					<strong>Error Loading Directories</strong>
+					<pre>{JSON.stringify(error, undefined, 4)}</pre>
+				{/await}
+			</div>
+		{:else}
+			<button on:click={() => dirsPromise = fetchDirs()}>
+				Add Folder
+			</button>
+		{/if}
+	</fieldset>
 </div>

@@ -2,7 +2,7 @@
 	import MetadataExplorer from '$lib/browser/MetadataExplorer.svelte'
 	import Editor from '$lib/browser/Editor.svelte'
 	import BulkMetadataEditor from '$lib/browser/BulkMetadataEditor.svelte'
-	import { configuration, curatorState, fileDetails } from '$lib/browser/stores.js'
+	import { configuration, curatorState } from '$lib/browser/stores.js'
 
 	$: shouldWait = Object
 		.keys($configuration && $configuration.folders || {})

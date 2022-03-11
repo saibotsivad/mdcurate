@@ -75,30 +75,41 @@ setInterval(() => {
 
 export const getConfiguration = () => klona(configuration)
 
-export const addFolder = (folder, extensions) => {
+const waitForLoadingCompletion = async () => {
+	while (loading || removing || Object.keys(configuration.folders).find(folder => configuration.folders[folder].status === 'loading')) {
+		await timers.setTimeout(1000)
+		console.log('Waiting for loading to complete...')
+	}
+}
+
+const waitForStatusCompletion = async (folder, status) => {
+	while (loading || removing || configuration.folders?.[folder]?.status === status) {
+		await timers.setTimeout(1000)
+		console.log('Waiting for status to change for folder...')
+	}
+}
+
+export const addFolder = async (folder, extensions) => {
 	configuration.folders[folder] = {
 		status: 'loading',
 		extensions,
 	}
-	return klona(configuration)
+	await waitForStatusCompletion(folder, 'loading')
+}
+
+export const removeFolder = async folder => {
+	configuration.folders[folder].status = 'removing'
+	await waitForStatusCompletion(folder, 'removing')
 }
 
 export const reloadEverything = async () => {
 	for (const folder in configuration.folders) {
 		configuration.folders[folder].status = 'loading'
 	}
-	while (Object.keys(configuration.folders).find(folder => configuration.folders[folder].status === 'loading')) {
-		await timers.setTimeout(1000)
-		console.log('Waiting for reload to complete...')
-	}
-}
-
-export const removeFolder = folder => {
-	configuration.folders[folder].status = 'removing'
-	return klona(configuration)
+	await waitForLoadingCompletion()
 }
 
 export const getFolderFiles = () => klona(inspectedFolderFiles)
 
 // For easier testing you can set a value here, so every time it restarts in dev mode it'll have this one set still.
-// addFolder('/path/to/folder', [ 'md' ])
+// await addFolder('/path/to/folder', [ 'md' ])

@@ -136,7 +136,7 @@
 	}
 </style>
 
-{#if groupedErrors}
+{#if Object.keys(groupedErrors).length}
 	<div class="wrapper" style="border-bottom: 4px solid var(--primary-bg);">
 		<div class="data">
 			<h2>Loading Errors!</h2>

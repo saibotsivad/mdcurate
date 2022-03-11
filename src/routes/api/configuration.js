@@ -13,10 +13,10 @@ export async function post({ request }) {
 	for (const { op, path, value } of patches) {
 		if (op === 'add' && path.startsWith('/folders/')) {
 			const [ , folder ] = toTokens(path)
-			addFolder(folder, value?.extensions)
+			await addFolder(folder, value?.extensions)
 		} else if (op === 'remove' && path.startsWith('/folders/')) {
 			const [ , folder ] = toTokens(path)
-			removeFolder(folder)
+			await removeFolder(folder)
 		} else {
 			return {
 				status: 400,

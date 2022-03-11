@@ -5,7 +5,7 @@
 	export let values
 
 	let resultsLimit = 0
-	$: resultsLimitInt = parseInt(resultsLimit, 10)
+	$: resultsLimitInt = parseInt(resultsLimit || 0, 10)
 
 	const makeFolderFiles = list => {
 		const map = {}
@@ -33,7 +33,7 @@
 	</span>
 	<div slot="panel">
 		<p class="results-limit">
-			<label for="limiter">Limit to results with more than</label>
+			<label for="limiter">Limit to values with more than</label>
 			<input type="text" id="limiter" bind:value={resultsLimit}>
 			results.
 		</p>
