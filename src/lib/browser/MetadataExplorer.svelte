@@ -193,7 +193,7 @@
 						</tr>
 					</thead>
 					<tbody>
-						{#each metadataKeys as key}
+						{#each metadataKeys.sort() as key}
 						{@const usageCount = fileData.metadataKeys[key].length}
 							<tr class:selected={panel?.key === key}>
 								<td class="filename-input">

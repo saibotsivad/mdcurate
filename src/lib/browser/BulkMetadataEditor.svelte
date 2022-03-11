@@ -161,7 +161,6 @@
 		</li>
 	</ul>
 	<ContentEditable bind:value={runnable} label="JavaScript" lang="javascript" />
-	<pre>{JSON.stringify(runnable)}</pre>
 
 	<p class="header">
 		<strong>Test it Out</strong>
