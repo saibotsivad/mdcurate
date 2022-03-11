@@ -1,6 +1,6 @@
 {
   "name": "mdcurate",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Tool for curating metadata (also called frontmatter) in markdown files.",
   "type": "module",
   "bin": "bin.js",
