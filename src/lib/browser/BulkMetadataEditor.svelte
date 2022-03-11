@@ -34,6 +34,10 @@
 		.join('/')
 	)
 	.join(', ')`
+	const example4 = `if ($metadata.categories?.toLowerCase().includes('fruit')) {
+	$metadata.grammarian = $metadata.grammarian || []
+	$metadata.grammarian.push('Ambrose Bierce')
+}`
 
 	let demoData = '{\n  "categories": "book, physiology /Development,  Fruit/citrus"\n}'
 	let runnable = example1
@@ -137,6 +141,13 @@
 				<button on:click={() => runnable = example3}>Use</button>
 			</p>
 			<pre>{example3}</pre>
+
+			<p>
+				Conditional logic: if the <code class="inline">categories</code> is a string with the word
+				<code class="inline">fruit</code> (case-ignored), add a new metadata property.
+				<button on:click={() => runnable = example4}>Use</button>
+			</p>
+			<pre>{example4}</pre>
 		</div>
 	{/if}
 	<p>Properties available in the function:</p>
