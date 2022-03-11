@@ -16,7 +16,7 @@ const process = async (filepath, modifyMetadata) => {
 		yaml.dump(updatedMetadata, { schema: yaml.JSON_SCHEMA, quotingType: '"' }).trim(),
 		'---',
 	].join('\n')
-	// TODO this is specific to BB, but whether to output as blockdown or not should come from the configuration file
+	// TODO whether to output as blockdown or not should come from the configuration file
 	if (blocks.length !== 1) return [ { message: 'more than one blockdown content area', _filepath: filepath } ]
 	updatedString += '\n' + blocks[0].content
 	await writeFile(filepath, updatedString, 'utf8')
