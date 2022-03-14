@@ -2,7 +2,6 @@
 	import BetterMapExplorerPanel from '$lib/browser/BetterMapExplorerPanel.svelte'
 
 	export let metadataMap = {}
-	export let parentIsObject
 
 	$: stringKeys = Object
 		.keys(metadataMap)

@@ -117,5 +117,5 @@ export const getFolderFiles = () => klona(inspectedFolderFiles)
 //    npm run dev -- /path/to/folder
 //
 if (process.env.npm_command === 'run-script') {
-	await addFolder(process.argv[3], [ 'md' ])
+	addFolder(process.argv[3], [ 'md' ])
 }
