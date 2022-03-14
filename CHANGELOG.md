@@ -22,7 +22,7 @@ Change categories are:
 ### Removed
 ### Security
 
-## Unreleased
+## [1.3.3](https://github.com/saibotsivad/mdcurate/compare/v1.3.2...v1.3.3) - 2022-03-14
 ### Added
 - Just for local development, a way to make it load a specific folder on SvelteKit reload.
 ### Fix
