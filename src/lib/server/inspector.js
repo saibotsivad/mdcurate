@@ -43,6 +43,10 @@ export const inspectFolderFileMap = folderFileData => {
 						for (let index = 0; index < currentValue.length; index++) {
 							recurse([ ...metadataKeypath, index ], arrayKeypath)
 						}
+					} else if (currentValue === true || currentValue === false || currentValue === null) {
+						const primitiveKeypath = [ ...mapKeypath, (currentValue === null ? '__null' : '__boolean') ]
+						if (!dlv(output.metadataMap, primitiveKeypath)) dset(output.metadataMap, primitiveKeypath, {})
+						add([ ...primitiveKeypath, (currentValue === null ? 'null' : currentValue.toString()) ])
 					} else if (typeof currentValue === 'object') {
 						const objectKeypath = [ ...mapKeypath, '__object' ]
 						if (!dlv(output.metadataMap, objectKeypath)) dset(output.metadataMap, objectKeypath, {})

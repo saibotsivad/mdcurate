@@ -1,16 +1,15 @@
 <script>
 	import Collapsing from '$lib/browser/Collapsing.svelte'
 	import { selectedFile } from '$lib/browser/stores.js'
-	export let folderFiles
-	const remap = list => {
-		const map = {}
-		for (const { file, folder } of list) {
-			map[folder] = map[folder] || {}
-			map[folder][file] = true
+	export let folderFileMap
+	let folderFilesCount = 0
+	$: {
+		let count = 0
+		for (const folder in folderFileMap || {}) {
+			count += Object.keys(folderFileMap[folder]).length
 		}
-		return map
+		folderFilesCount = count
 	}
-	$: folderToFilesMap = remap(folderFiles)
 </script>
 
 <style>
@@ -19,16 +18,16 @@
 	}
 </style>
 
-<Collapsing collapsed fileMap={folderToFilesMap}>
+<Collapsing collapsed fileMap={folderFileMap}>
 	<span slot="title">
 		File List
-		({folderFiles.length})
+		({folderFilesCount})
 	</span>
 	<div slot="panel">
-		{#each Object.keys(folderToFilesMap || {}) as folder}
+		{#each Object.keys(folderFileMap || {}) as folder}
 			<strong>{folder}</strong>
 			<ul>
-				{#each Object.keys(folderToFilesMap[folder] || {}) as file}
+				{#each Object.keys(folderFileMap[folder] || {}) as file}
 					<li>
 						{file}
 						<button on:click={() => $selectedFile = { folder, file }}>
@@ -40,5 +39,3 @@
 		{/each}
 	</div>
 </Collapsing>
-
-<hr>

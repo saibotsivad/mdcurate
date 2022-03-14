@@ -2,7 +2,7 @@
 	import { minimumDelay } from '$lib/delay.js'
 	import { post } from '$lib/browser/post.js'
 	import FileListing from '$lib/browser/FileListing.svelte'
-	import UniqueKeyValues from '$lib/browser/UniqueKeyValues.svelte'
+	import BetterMapExplorer from '$lib/browser/BetterMapExplorer.svelte'
 	import { selectedFile, fileDetails } from '$lib/browser/stores.js'
 
 	$: fileData = $fileDetails
@@ -12,23 +12,27 @@
 	let renameOpen = {}
 	let rename = {}
 
-	const folderFilesForKey = (key, filesWith) => {
-		const folderFiles = []
+	const folderFileMapForKey = (key, filesWith) => {
+		const folderFileMap = {}
 		if (filesWith) {
 			for (const folder in fileData.metadataKeys[key]) {
-				for (const file in fileData.metadataKeys[key][folder]) folderFiles.push({ folder, file })
+				for (const file in fileData.metadataKeys[key][folder]) {
+					folderFileMap[folder] = folderFileMap[folder] || {}
+					folderFileMap[folder][file] = true
+				}
 			}
 		} else {
 			for (const { file, folder } of fileData.folderFiles) {
 				if (!fileData.metadataKeys[key]?.[folder]?.[file]) {
-					folderFiles.push({ file, folder })
+					folderFileMap[folder] = folderFileMap[folder] || {}
+					folderFileMap[folder][file] = true
 				}
 			}
 		}
-		return folderFiles
+		return folderFileMap
 	}
 
-	$: folderFiles = panel && folderFilesForKey(panel.key, panel.subtype === 'with')
+	$: folderFileMap = panel && folderFileMapForKey(panel.key, panel.subtype === 'with')
 
 	$: groupedErrors = fileData.errors?.reduce((map, { folder, file, value }) => {
 		map[folder] = map[folder] || {}
@@ -74,7 +78,7 @@
 	.explorer {
 		margin-left: 4em;
 		padding-left: 4em;
-		border-left: 4px solid var(--primary-bg);
+		border-left: 4px solid var(--info-bg);
 		min-height: 100%;
 		flex-grow: 1;
 	}
@@ -154,7 +158,7 @@
 {/if}
 
 <div class="wrapper">
-	<div class="data">
+	<div class="data" style="width: 40em;">
 		<h2>Metadata Keys</h2>
 		<p>This is a list of every metadata key name found across all files.</p>
 		{#if !metadataKeys.length}
@@ -249,9 +253,10 @@
 						<span style="font-weight: normal;">{panel.subtype}</span>
 					</small>
 				</h2>
-				<FileListing {folderFiles} />
+				<FileListing {folderFileMap} />
+				<hr>
 				{#if panel.subtype === 'with'}
-					<UniqueKeyValues key={panel.key} {fileData} />
+					<BetterMapExplorer metadataMap={fileData.metadataMap[panel.key]} />
 				{/if}
 			{/if}
 		</div>

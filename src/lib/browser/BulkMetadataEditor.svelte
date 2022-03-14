@@ -72,7 +72,7 @@
 	let runningTransform
 	const runTransform = () => {
 		runningTransform = true
-		post('/api/transform', { runnable, files: $bulkEditorFileMap })
+		post('/api/transform', { runnable, fileMap: $bulkEditorFileMap })
 			.then(() => fetch('/api/files'))
 			.then(r => r.json())
 			.then(updatedFileData => {

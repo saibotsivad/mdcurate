@@ -5,16 +5,16 @@
 
 	let count = 0
 	$: {
-		count = 0
-		for (const folder in fileMap || {}) {
-			for (const file in fileMap[folder] || {}) count++
-		}
+		let c = 0
+		for (const folder in fileMap || {}) c += Object.keys(fileMap[folder] || {}).length
+		count = c
 	}
 </script>
 
 <h3>
 	<slot name="title" />
 	<button on:click={() => collapsed = !collapsed}>
+		Files
 		{#if collapsed}
 			📁
 		{:else}

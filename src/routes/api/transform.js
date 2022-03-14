@@ -36,12 +36,14 @@ const initializeTheDanger = runnable => {
 }
 
 export async function post({ request }) {
-	const { runnable, files } = await request.json()
+	const { runnable, fileMap } = await request.json()
 	const dangerouslyRun = initializeTheDanger(runnable)
 	const overallErrors = []
-	for (const { folder, file } of files) {
-		const errors = await dangerouslyTransformMetadata(join(folder, file), dangerouslyRun)
-		if (errors) overallErrors.push(...errors)
+	for (const folder in fileMap) {
+		for (const file in fileMap[folder]) {
+			const errors = await dangerouslyTransformMetadata(join(folder, file), dangerouslyRun)
+			if (errors) overallErrors.push(...errors)
+		}
 	}
 	await reloadEverything()
 	return {

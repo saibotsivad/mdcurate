@@ -90,7 +90,6 @@ const expectedMetadataMap = {
 	},
 }
 
-
 test('build the metadata map correctly', () => {
 	const output = inspectFolderFileMap({
 		folder1: {
@@ -148,6 +147,57 @@ test('build the metadata map correctly', () => {
 	})
 
 	assert.equal(output.metadataMap, expectedMetadataMap)
+})
+
+
+test('simple object', () => {
+	const output = inspectFolderFileMap({
+		folder1: {
+			file1: {
+				metadata: {
+					tags: {
+						blog: true,
+						science: {
+							chemistry: false,
+						},
+					},
+				},
+			},
+		},
+	})
+
+	assert.equal(output.metadataMap, {
+		'tags': {
+			__object: {
+				blog: {
+					__boolean: {
+						true: {
+							__items: {
+								folder1: {
+									file1: true,
+								},
+							},
+						},
+					},
+				},
+				science: {
+					__object: {
+						chemistry: {
+							__boolean: {
+								false: {
+									__items: {
+										folder1: {
+											file1: true,
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	})
 })
 
 test.run()
