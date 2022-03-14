@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { readFileSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { join, dirname, isAbsolute, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import sade from 'sade'
@@ -31,23 +31,25 @@ sade('mdcurate', true)
 				const url = `http://localhost:${port}`
 				const ready = () => console.log('Metadata Organizer is ready! Access it here:', url)
 				if (dir && typeof dir !== 'string') dir = process.cwd()
-				if (dir) {
-					let extensions = []
-					if (typeof ext === 'string') extensions = ext.split(',').map(ext => ext.trim())
-					if (!extensions.length) extensions = [ 'md' ]
-					post(`${url}/api/configuration`, {
-						headers: { 'content-type': 'application/json' },
-						body: [
-							{
-								op: 'add',
-								path: toPointer([ 'folders', dir ]),
-								value: { extensions },
-							},
-						],
-					}).then(() => ready())
-				} else {
-					ready()
-				}
+				if (dir && !isAbsolute(dir)) dir = resolve(process.cwd(), dir)
+				if (dir)
+					if (dir) {
+						let extensions = []
+						if (typeof ext === 'string') extensions = ext.split(',').map(ext => ext.trim())
+						if (!extensions.length) extensions = [ 'md' ]
+						post(`${url}/api/configuration`, {
+							headers: { 'content-type': 'application/json' },
+							body: [
+								{
+									op: 'add',
+									path: toPointer([ 'folders', dir ]),
+									value: { extensions },
+								},
+							],
+						}).then(() => ready())
+					} else {
+						ready()
+					}
 			})
 		})
 	})

@@ -22,7 +22,7 @@ Change categories are:
 ### Removed
 ### Security
 
-## [1.3.0-1.3.1](https://github.com/saibotsivad/mdcurate/compare/v1.2.0...v1.3.1) - 2022-03-14
+## [1.3.0-1.3.2](https://github.com/saibotsivad/mdcurate/compare/v1.2.0...v1.3.2) - 2022-03-14
 ### Added
 - Ability to launch with a specific folder pre-added. Mostly for ease of development, but could be handy for scripting and so on.
 
