@@ -30,6 +30,8 @@ mdcurate
 
 Running `mdcurate` launches a local server. You do the curation from your browser, but for privacy and security everything only happens locally: no external services are ever contacted, for any reason.
 
+> Note: you can also pass in the `--here` (or `-h`) flag to launch it from a specific, singly directory. E.g. you can do `mdcurate --here` or `npx mdcurate --here` and it'll have your current directory loaded.
+
 ## Example
 
 Imagine you have a growing collection of markdown files with frontmatter/metadata, and some look like this:
