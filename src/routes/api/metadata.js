@@ -1,8 +1,8 @@
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import split from 'just-split'
-import yaml from 'js-yaml'
 
+import { serializeToYaml } from '$lib/server/yaml.js'
 import { reloadEverything } from '$lib/server/database.js'
 import { parseFileString } from '$lib/server/file-manager.js'
 
@@ -13,7 +13,7 @@ const process = async (filepath, modifyMetadata) => {
 	const updatedMetadata = modifyMetadata({ metadata, blocks })
 	let updatedString = [
 		'---',
-		yaml.dump(updatedMetadata, { schema: yaml.JSON_SCHEMA, quotingType: '"' }).trim(),
+		serializeToYaml(updatedMetadata),
 		'---',
 	].join('\n')
 	// TODO whether to output as blockdown or not should come from the configuration file

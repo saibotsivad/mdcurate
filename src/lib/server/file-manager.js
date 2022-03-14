@@ -3,7 +3,8 @@ import fs from 'node:fs/promises'
 import glob from 'tiny-glob'
 import split from 'just-split'
 import { parse as parseBlockdown } from '@saibotsivad/blockdown'
-import yaml from 'js-yaml'
+
+import { parseYaml } from '$lib/server/yaml.js'
 
 export const parseFileString = string => {
 	let errors
@@ -14,7 +15,7 @@ export const parseFileString = string => {
 	let metadata
 	if (frontmatter.name === 'frontmatter') {
 		try {
-			metadata = yaml.load(frontmatter.content, { schema: yaml.JSON_SCHEMA })
+			metadata = parseYaml(frontmatter.content)
 		} catch (error) {
 			errors = [ error ]
 		}

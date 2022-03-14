@@ -2,7 +2,8 @@ import { reloadEverything } from '$lib/server/database.js'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import lodash from 'lodash'
-import yaml from 'js-yaml'
+
+import { serializeToYaml } from '$lib/server/yaml.js'
 import { parseFileString } from '$lib/server/file-manager.js'
 
 const dangerouslyTransformMetadata = async (filepath, dangerouslyRun) => {
@@ -16,12 +17,7 @@ const dangerouslyTransformMetadata = async (filepath, dangerouslyRun) => {
 	}
 	let updatedString = [
 		'---',
-		yaml
-			.dump(metadata, {
-				schema: yaml.JSON_SCHEMA, quotingType: '"',
-				lineWidth: -1,
-			})
-			.trim(),
+		serializeToYaml(metadata),
 		'---',
 	].join('\n')
 	// TODO whether to output as blockdown or not should come from the configuration file
