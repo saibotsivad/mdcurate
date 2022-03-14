@@ -2,6 +2,7 @@
 	import BetterMapExplorerPanel from '$lib/browser/BetterMapExplorerPanel.svelte'
 
 	export let metadataMap = {}
+	export let parentIsObject
 
 	$: stringKeys = Object
 		.keys(metadataMap)
@@ -22,6 +23,7 @@
 	<BetterMapExplorerPanel
 		name={key}
 		metadataMap={metadataMap[key]}
+		isEmpty={Object.keys(metadataMap[key]).length === 1 && metadataMap[key].__items}
 	/>
 {/each}
 
@@ -30,7 +32,7 @@
 		<BetterMapExplorerPanel
 			name={typedToName[type]}
 			metadataMap={metadataMap[type]}
-			isNull={type === '__null'}
+			isEmpty={type === '__null'}
 		/>
 	{/if}
 {/each}

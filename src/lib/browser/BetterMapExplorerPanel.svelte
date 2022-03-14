@@ -5,7 +5,7 @@
 
 	export let name
 	export let metadataMap
-	export let isNull
+	export let isEmpty
 
 	$: fileMap = metadataMap && getFileMapFromMetadataMap(metadataMap)
 	$: count = fileMap && getFileMapCount(fileMap)
@@ -32,9 +32,9 @@
 		<em style="font-family: monospace; font-weight: normal;">Empty String</em>
 	{/if}
 	({count})
-	{#if !isNull}
+	{#if !isEmpty}
 		<button on:click={() => showMetadataExplorer = !showMetadataExplorer}>
-			🔍
+			Values
 			{#if showMetadataExplorer}
 				🔽
 			{:else}
