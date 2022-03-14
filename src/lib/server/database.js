@@ -111,5 +111,11 @@ export const reloadEverything = async () => {
 
 export const getFolderFiles = () => klona(inspectedFolderFiles)
 
-// For easier testing you can set a value here, so every time it restarts in dev mode it'll have this one set still.
-// await addFolder('/path/to/folder', [ 'md' ])
+// For easier testing, when running `npm run dev` you can pass in a value to set a folder
+// automatically, so on restart it'll retain that folder:
+//
+//    npm run dev -- /path/to/folder
+//
+if (process.env.npm_command === 'run-script') {
+	await addFolder(process.argv[3], [ 'md' ])
+}
